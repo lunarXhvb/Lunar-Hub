@@ -315,40 +315,77 @@ function Update:Window(Config)
 		TabWidth = Config.TabWidth
 	};
 	
-	-- Define blur and glass effect functions inside the Window function
-	local function AddBlurToWindow()
-		-- Only add blur if it doesn't already exist
-		if not _G.LUNARBlur then
-			local BlurEffect = Instance.new("BlurEffect")
-			BlurEffect.Name = "LUNARBlur"
-			BlurEffect.Size = 12
-			BlurEffect.Parent = game.Lighting
-			_G.LUNARBlur = BlurEffect
+local function AddBlurToWindow()
+
+	if not _G.LUNARBlur then
+		local BlurEffect = Instance.new("BlurEffect")
+		BlurEffect.Name = "LUNARBlur"
+		BlurEffect.Size = 12
+		BlurEffect.Parent = game.Lighting
+		_G.LUNARBlur = BlurEffect
+	end
+end
+
+local function RemoveBlurFromWindow()
+
+	if _G.LUNARBlur then
+		_G.LUNARBlur:Destroy()
+		_G.LUNARBlur = nil
+	end
+end
+
+local function ToggleBlur(enabled)
+	if enabled then
+		AddBlurToWindow()
+	else
+		RemoveBlurFromWindow()
+	end
+end
+
+CloseButton.MouseButton1Click:connect(function()
+	local lunarGui = game.CoreGui:FindFirstChild("LUNAR")
+	if lunarGui then
+
+		lunarGui.Enabled = not lunarGui.Enabled
+
+		ToggleBlur(lunarGui.Enabled)
+	end
+end)
+
+ResizeButton.MouseButton1Click:connect(function()
+	if not uihide then
+
+		uihide = true
+		Main:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.3, true)
+		OutlineMain:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.3, true)
+		RemoveBlurFromWindow() 
+	else
+
+		uihide = false
+		Main:TweenSize(WindowConfig.Size, "Out", "Quad", 0.3, true)
+		OutlineMain:TweenSize(UDim2.new(0, WindowConfig.Size.X.Offset + 15, 0, WindowConfig.Size.Y.Offset + 15), "Out", "Quad", 0.3, true)
+		AddBlurToWindow() 
+	end
+end)
+
+LUNAR.AncestryChanged:Connect(function()
+	if not LUNAR.Parent then
+
+		RemoveBlurFromWindow()
+	end
+end)
+
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+
+	if input.KeyCode == keybind then
+		local lunarGui = game.CoreGui:FindFirstChild("LUNAR")
+		if lunarGui then
+			lunarGui.Enabled = not lunarGui.Enabled
+			ToggleBlur(lunarGui.Enabled)
 		end
 	end
-
-	local function CreateGlassEffect(frame)
-		-- Create glass morphism effect with gradient and stroke
-		local UIGradient = Instance.new("UIGradient")
-		UIGradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
-			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(28, 28, 32)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 25))
-		})
-		UIGradient.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0.3),
-			NumberSequenceKeypoint.new(0.5, 0.1),
-			NumberSequenceKeypoint.new(1, 0.3)
-		})
-		UIGradient.Parent = frame
-
-		local UIStroke = Instance.new("UIStroke")
-		UIStroke.Color = Color3.fromRGB(255, 255, 255)
-		UIStroke.Transparency = 0.85
-		UIStroke.Thickness = 1.2
-		UIStroke.Parent = frame
-	end
-
+end)
 	local osfunc = {};
 	local uihide = false;
 	local abc = false;
