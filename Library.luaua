@@ -315,40 +315,27 @@ function Update:Window(Config)
 		TabWidth = Config.TabWidth
 	};
 	
-local function AddBlurToWindow()
-
-	if not _G.LUNARBlur then
-		local BlurEffect = Instance.new("BlurEffect")
-		BlurEffect.Name = "LUNARBlur"
-		BlurEffect.Size = 12
-		BlurEffect.Parent = game.Lighting
-		_G.LUNARBlur = BlurEffect
-	end
-end
-
-local function RemoveBlurFromWindow()
-
-	if _G.LUNARBlur then
-		_G.LUNARBlur:Destroy()
-		_G.LUNARBlur = nil
-	end
-end
-
-local function ToggleBlur(enabled)
-	if enabled then
-		AddBlurToWindow()
-	else
-		RemoveBlurFromWindow()
-	end
-end
-
 CloseButton.MouseButton1Click:connect(function()
+
 	local lunarGui = game.CoreGui:FindFirstChild("LUNAR")
 	if lunarGui then
-
 		lunarGui.Enabled = not lunarGui.Enabled
+		if lunarGui.Enabled then
 
-		ToggleBlur(lunarGui.Enabled)
+			if not _G.LUNARBlur then
+				local BlurEffect = Instance.new("BlurEffect")
+				BlurEffect.Name = "LUNARBlur"
+				BlurEffect.Size = 12
+				BlurEffect.Parent = game.Lighting
+				_G.LUNARBlur = BlurEffect
+			end
+		else
+
+			if _G.LUNARBlur then
+				_G.LUNARBlur:Destroy()
+				_G.LUNARBlur = nil
+			end
+		end
 	end
 end)
 
@@ -358,31 +345,33 @@ ResizeButton.MouseButton1Click:connect(function()
 		uihide = true
 		Main:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.3, true)
 		OutlineMain:TweenSize(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.3, true)
-		RemoveBlurFromWindow() 
+
+		if _G.LUNARBlur then
+			_G.LUNARBlur:Destroy()
+			_G.LUNARBlur = nil
+		end
 	else
 
 		uihide = false
 		Main:TweenSize(WindowConfig.Size, "Out", "Quad", 0.3, true)
 		OutlineMain:TweenSize(UDim2.new(0, WindowConfig.Size.X.Offset + 15, 0, WindowConfig.Size.Y.Offset + 15), "Out", "Quad", 0.3, true)
-		AddBlurToWindow() 
+
+		if not _G.LUNARBlur then
+			local BlurEffect = Instance.new("BlurEffect")
+			BlurEffect.Name = "LUNARBlur"
+			BlurEffect.Size = 12
+			BlurEffect.Parent = game.Lighting
+			_G.LUNARBlur = BlurEffect
+		end
 	end
 end)
 
 LUNAR.AncestryChanged:Connect(function()
 	if not LUNAR.Parent then
 
-		RemoveBlurFromWindow()
-	end
-end)
-
-game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed then return end
-
-	if input.KeyCode == keybind then
-		local lunarGui = game.CoreGui:FindFirstChild("LUNAR")
-		if lunarGui then
-			lunarGui.Enabled = not lunarGui.Enabled
-			ToggleBlur(lunarGui.Enabled)
+		if _G.LUNARBlur then
+			_G.LUNARBlur:Destroy()
+			_G.LUNARBlur = nil
 		end
 	end
 end)
