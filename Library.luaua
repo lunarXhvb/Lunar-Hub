@@ -314,37 +314,76 @@ function Update:Window(Config)
 		Size = Config.Size,
 		TabWidth = Config.TabWidth
 	};
+	
+	-- Define blur and glass effect functions inside the Window function
+	local function AddBlurToWindow()
+		-- Only add blur if it doesn't already exist
+		if not _G.LUNARBlur then
+			local BlurEffect = Instance.new("BlurEffect")
+			BlurEffect.Name = "LUNARBlur"
+			BlurEffect.Size = 12
+			BlurEffect.Parent = game.Lighting
+			_G.LUNARBlur = BlurEffect
+		end
+	end
+
+	local function CreateGlassEffect(frame)
+		-- Create glass morphism effect with gradient and stroke
+		local UIGradient = Instance.new("UIGradient")
+		UIGradient.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(28, 28, 32)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 25))
+		})
+		UIGradient.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.3),
+			NumberSequenceKeypoint.new(0.5, 0.1),
+			NumberSequenceKeypoint.new(1, 0.3)
+		})
+		UIGradient.Parent = frame
+
+		local UIStroke = Instance.new("UIStroke")
+		UIStroke.Color = Color3.fromRGB(255, 255, 255)
+		UIStroke.Transparency = 0.85
+		UIStroke.Thickness = 1.2
+		UIStroke.Parent = frame
+	end
+
 	local osfunc = {};
 	local uihide = false;
 	local abc = false;
 	local currentpage = "";
 	local keybind = keybind or Enum.KeyCode.RightControl;
 	local yoo = string.gsub(tostring(keybind), "Enum.KeyCode.", "");
+	
 	local LUNAR = Instance.new("ScreenGui");
 	LUNAR.Name = "LUNAR";
 	LUNAR.Parent = game.CoreGui;
 	LUNAR.DisplayOrder = 999;
+	
 	local OutlineMain = Instance.new("Frame");
 	OutlineMain.Name = "OutlineMain";
 	OutlineMain.Parent = LUNAR;
 	OutlineMain.ClipsDescendants = true;
 	OutlineMain.AnchorPoint = Vector2.new(0.5, 0.5);
 	OutlineMain.BackgroundColor3 = Color3.fromRGB(30, 30, 30);
-	OutlineMain.BackgroundTransparency = 0.4;
+	OutlineMain.BackgroundTransparency = 0.6; -- Enhanced transparency
 	OutlineMain.Position = UDim2.new(0.5, 0, 0.45, 0);
 	OutlineMain.Size = UDim2.new(0, 0, 0, 0);
 	CreateRounded(OutlineMain, 15);
+	
 	local Main = Instance.new("Frame");
 	Main.Name = "Main";
 	Main.Parent = OutlineMain;
 	Main.ClipsDescendants = true;
 	Main.AnchorPoint = Vector2.new(0.5, 0.5);
 	Main.BackgroundColor3 = Color3.fromRGB(24, 24, 26);
-	Main.BackgroundTransparency = 0;
+	Main.BackgroundTransparency = 0.5; -- 50% transparency
 	Main.Position = UDim2.new(0.5, 0, 0.5, 0);
 	Main.Size = WindowConfig.Size;
 	OutlineMain:TweenSize(UDim2.new(0, WindowConfig.Size.X.Offset + 15, 0, WindowConfig.Size.Y.Offset + 15), "Out", "Quad", 0.4, true);
 	CreateRounded(Main, 12);
+	
 	local BtnStroke = Instance.new("UIStroke");
 	local DragButton = Instance.new("Frame");
 	DragButton.Name = "DragButton";
@@ -361,13 +400,15 @@ function Update:Window(Config)
 	CircleDragButton.Name = "CircleDragButton";
 	CircleDragButton.Parent = DragButton;
 	CircleDragButton.CornerRadius = UDim.new(0, 99);
+	
 	local Top = Instance.new("Frame");
 	Top.Name = "Top";
 	Top.Parent = Main;
 	Top.BackgroundColor3 = Color3.fromRGB(10, 10, 10);
 	Top.Size = UDim2.new(1, 0, 0, 40);
-	Top.BackgroundTransparency = 1;
+	Top.BackgroundTransparency = 0.8; -- Enhanced transparency
 	CreateRounded(Top, 5);
+	
 	local NameHub = Instance.new("TextLabel");
 	NameHub.Name = "NameHub";
 	NameHub.Parent = Top;
@@ -384,6 +425,7 @@ function Update:Window(Config)
 	NameHub.TextXAlignment = Enum.TextXAlignment.Left;
 	local nameHubSize = (game:GetService("TextService")):GetTextSize(NameHub.Text, NameHub.TextSize, NameHub.Font, Vector2.new(math.huge, math.huge));
 	NameHub.Size = UDim2.new(0, nameHubSize.X, 0, 25);
+	
 	local SubTitle = Instance.new("TextLabel");
 	SubTitle.Name = "SubTitle";
 	SubTitle.Parent = NameHub;
@@ -398,6 +440,7 @@ function Update:Window(Config)
 	SubTitle.TextColor3 = Color3.fromRGB(150, 150, 150);
 	local SubTitleSize = (game:GetService("TextService")):GetTextSize(SubTitle.Text, SubTitle.TextSize, SubTitle.Font, Vector2.new(math.huge, math.huge));
 	SubTitle.Size = UDim2.new(0, SubTitleSize.X, 0, 25);
+	
 	local CloseButton = Instance.new("ImageButton");
 	CloseButton.Name = "CloseButton";
 	CloseButton.Parent = Top;
@@ -410,9 +453,7 @@ function Update:Window(Config)
 	CloseButton.ImageTransparency = 0;
 	CloseButton.ImageColor3 = Color3.fromRGB(245, 245, 245);
 	CreateRounded(CloseButton, 3);
-	CloseButton.MouseButton1Click:connect(function()
-		(game.CoreGui:FindFirstChild("LUNAR")).Enabled = not (game.CoreGui:FindFirstChild("LUNAR")).Enabled;
-	end);
+	
 	local ResizeButton = Instance.new("ImageButton");
 	ResizeButton.Name = "ResizeButton";
 	ResizeButton.Parent = Top;
@@ -425,6 +466,7 @@ function Update:Window(Config)
 	ResizeButton.ImageTransparency = 0;
 	ResizeButton.ImageColor3 = Color3.fromRGB(245, 245, 245);
 	CreateRounded(ResizeButton, 3);
+	
 	local BackgroundSettings = Instance.new("Frame");
 	BackgroundSettings.Name = "BackgroundSettings";
 	BackgroundSettings.Parent = OutlineMain;
@@ -437,16 +479,18 @@ function Update:Window(Config)
 	BackgroundSettings.Size = UDim2.new(1, 0, 1, 0);
 	BackgroundSettings.Visible = false;
 	CreateRounded(BackgroundSettings, 15);
+	
 	local SettingsFrame = Instance.new("Frame");
 	SettingsFrame.Name = "SettingsFrame";
 	SettingsFrame.Parent = BackgroundSettings;
 	SettingsFrame.ClipsDescendants = true;
 	SettingsFrame.AnchorPoint = Vector2.new(0.5, 0.5);
 	SettingsFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 26);
-	SettingsFrame.BackgroundTransparency = 0;
+	SettingsFrame.BackgroundTransparency = 0.4; -- Enhanced transparency
 	SettingsFrame.Position = UDim2.new(0.5, 0, 0.5, 0);
 	SettingsFrame.Size = UDim2.new(0.7, 0, 0.7, 0);
 	CreateRounded(SettingsFrame, 15);
+	
 	local CloseSettings = Instance.new("ImageButton");
 	CloseSettings.Name = "CloseSettings";
 	CloseSettings.Parent = SettingsFrame;
@@ -462,6 +506,7 @@ function Update:Window(Config)
 	CloseSettings.MouseButton1Click:connect(function()
 		BackgroundSettings.Visible = false;
 	end);
+	
 	local SettingsButton = Instance.new("ImageButton");
 	SettingsButton.Name = "SettingsButton";
 	SettingsButton.Parent = Top;
@@ -477,6 +522,7 @@ function Update:Window(Config)
 	SettingsButton.MouseButton1Click:connect(function()
 		BackgroundSettings.Visible = true;
 	end);
+	
 	local TitleSettings = Instance.new("TextLabel");
 	TitleSettings.Name = "TitleSettings";
 	TitleSettings.Parent = SettingsFrame;
@@ -490,6 +536,7 @@ function Update:Window(Config)
 	TitleSettings.TextSize = 20;
 	TitleSettings.TextColor3 = Color3.fromRGB(245, 245, 245);
 	TitleSettings.TextXAlignment = Enum.TextXAlignment.Left;
+	
 	local SettingsMenuList = Instance.new("Frame");
 	SettingsMenuList.Name = "SettingsMenuList";
 	SettingsMenuList.Parent = SettingsFrame;
@@ -500,6 +547,7 @@ function Update:Window(Config)
 	SettingsMenuList.Position = UDim2.new(0, 0, 0, 50);
 	SettingsMenuList.Size = UDim2.new(1, 0, 1, -70);
 	CreateRounded(SettingsMenuList, 15);
+	
 	local ScrollSettings = Instance.new("ScrollingFrame");
 	ScrollSettings.Name = "ScrollSettings";
 	ScrollSettings.Parent = SettingsMenuList;
@@ -511,14 +559,17 @@ function Update:Window(Config)
 	ScrollSettings.ScrollBarThickness = 3;
 	ScrollSettings.ScrollingDirection = Enum.ScrollingDirection.Y;
 	CreateRounded(SettingsMenuList, 5);
+	
 	local SettingsListLayout = Instance.new("UIListLayout");
 	SettingsListLayout.Name = "SettingsListLayout";
 	SettingsListLayout.Parent = ScrollSettings;
 	SettingsListLayout.SortOrder = Enum.SortOrder.LayoutOrder;
 	SettingsListLayout.Padding = UDim.new(0, 8);
+	
 	local PaddingScroll = Instance.new("UIPadding");
 	PaddingScroll.Name = "PaddingScroll";
 	PaddingScroll.Parent = ScrollSettings;
+	
 	function CreateCheckbox(title, state, callback)
 		local checked = state or false;
 		local Background = Instance.new("Frame");
@@ -528,6 +579,7 @@ function Update:Window(Config)
 		Background.BackgroundColor3 = Color3.fromRGB(24, 24, 26);
 		Background.BackgroundTransparency = 1;
 		Background.Size = UDim2.new(1, 0, 0, 20);
+		
 		local Title = Instance.new("TextLabel");
 		Title.Name = "Title";
 		Title.Parent = Background;
@@ -541,6 +593,7 @@ function Update:Window(Config)
 		Title.TextSize = 15;
 		Title.TextColor3 = Color3.fromRGB(200, 200, 200);
 		Title.TextXAlignment = Enum.TextXAlignment.Left;
+		
 		local Checkbox = Instance.new("ImageButton");
 		Checkbox.Name = "Checkbox";
 		Checkbox.Parent = Background;
@@ -553,6 +606,7 @@ function Update:Window(Config)
 		Checkbox.ImageTransparency = 1;
 		Checkbox.ImageColor3 = Color3.fromRGB(245, 245, 245);
 		CreateRounded(Checkbox, 5);
+		
 		Checkbox.MouseButton1Click:Connect(function()
 			checked = not checked;
 			if checked then
@@ -564,6 +618,7 @@ function Update:Window(Config)
 			end;
 			pcall(callback, checked);
 		end);
+		
 		if checked then
 			Checkbox.ImageTransparency = 0;
 			Checkbox.BackgroundColor3 = Color3.fromRGB(255, 0, 0);
@@ -861,6 +916,22 @@ function Update:Window(Config)
 				ResizeButton.Image = "rbxassetid://10734886735";
 			end;
 		end);
+
+
+CreateGlassEffect(OutlineMain);
+	CreateGlassEffect(Main);
+	CreateGlassEffect(SettingsFrame);
+	CreateGlassEffect(Tab);
+	
+	AddBlurToWindow();
+	
+	CloseButton.MouseButton1Click:connect(function()
+		if _G.LUNARBlur then
+			_G.LUNARBlur:Destroy()
+			_G.LUNARBlur = nil
+		end
+		(game.CoreGui:FindFirstChild("LUNAR")).Enabled = not (game.CoreGui:FindFirstChild("LUNAR")).Enabled;
+	end);
 local main = {};
 
 function main:Button(text, callback)
@@ -1650,50 +1721,7 @@ Grad3.Parent = Sep3;
 		return main;
 	end;
 
-Main.BackgroundTransparency = 0.5; 
 
-local function AddBlurToWindow()
-
-    local BlurEffect = Instance.new("BlurEffect")
-    BlurEffect.Name = "LUNARBlur"
-    BlurEffect.Size = 12 
-    BlurEffect.Parent = game.Lighting
-
-    _G.LUNARBlur = BlurEffect
-end
-
-local function CreateGlassEffect(frame)
-
-    local UIGradient = Instance.new("UIGradient")
-    UIGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 25))
-    })
-    UIGradient.Parent = frame
-
-    local UIStroke = Instance.new("UIStroke")
-    UIStroke.Color = Color3.fromRGB(255, 255, 255)
-    UIStroke.Transparency = 0.85 
-    UIStroke.Thickness = 1.5
-    UIStroke.Parent = frame
-end
-
-OutlineMain.BackgroundTransparency = 0.6; 
-CreateGlassEffect(OutlineMain);
-AddBlurToWindow();
-
-Tab.BackgroundTransparency = 0.7; 
-
-Page.BackgroundTransparency = 0.6; 
-
-CloseButton.MouseButton1Click:connect(function()
-
-    if _G.LUNARBlur then
-        _G.LUNARBlur:Destroy()
-        _G.LUNARBlur = nil
-    end
-    (game.CoreGui:FindFirstChild("LUNAR")).Enabled = not (game.CoreGui:FindFirstChild("LUNAR")).Enabled;
-end);
 	return uitab;
 end;
 
