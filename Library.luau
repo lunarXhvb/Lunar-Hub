@@ -1649,8 +1649,6 @@ Grad3.Parent = Sep3;
 		end;
 		return main;
 	end;
-	return uitab;
-end;
 
 Main.BackgroundTransparency = 0.5; 
 
@@ -1696,4 +1694,8 @@ CloseButton.MouseButton1Click:connect(function()
     end
     (game.CoreGui:FindFirstChild("LUNAR")).Enabled = not (game.CoreGui:FindFirstChild("LUNAR")).Enabled;
 end);
+	return uitab;
+end;
+
+
 return Update;
