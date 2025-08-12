@@ -1,4 +1,4 @@
-local LUNARLibrary = (loadstring(Game:HttpGet("")))();
+local LUNARLibrary = (loadstring(Game:HttpGet("https://raw.githubusercontent.com/lunarXhvb/Lunar-Hub/refs/heads/main/Library.luau")))();
 if LUNARLibrary:LoadAnimation() then
 	LUNARLibrary:StartLoad();
 end;
