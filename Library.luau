@@ -1652,4 +1652,48 @@ Grad3.Parent = Sep3;
 	return uitab;
 end;
 
+Main.BackgroundTransparency = 0.5; 
+
+local function AddBlurToWindow()
+
+    local BlurEffect = Instance.new("BlurEffect")
+    BlurEffect.Name = "LUNARBlur"
+    BlurEffect.Size = 12 
+    BlurEffect.Parent = game.Lighting
+
+    _G.LUNARBlur = BlurEffect
+end
+
+local function CreateGlassEffect(frame)
+
+    local UIGradient = Instance.new("UIGradient")
+    UIGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 25))
+    })
+    UIGradient.Parent = frame
+
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Color = Color3.fromRGB(255, 255, 255)
+    UIStroke.Transparency = 0.85 
+    UIStroke.Thickness = 1.5
+    UIStroke.Parent = frame
+end
+
+OutlineMain.BackgroundTransparency = 0.6; 
+CreateGlassEffect(OutlineMain);
+AddBlurToWindow();
+
+Tab.BackgroundTransparency = 0.7; 
+
+Page.BackgroundTransparency = 0.6; 
+
+CloseButton.MouseButton1Click:connect(function()
+
+    if _G.LUNARBlur then
+        _G.LUNARBlur:Destroy()
+        _G.LUNARBlur = nil
+    end
+    (game.CoreGui:FindFirstChild("LUNAR")).Enabled = not (game.CoreGui:FindFirstChild("LUNAR")).Enabled;
+end);
 return Update;
